@@ -14,10 +14,13 @@ import edu.uoc.pac4.data.SessionManager
 import edu.uoc.pac4.data.TwitchApiService
 import edu.uoc.pac4.data.network.Network
 import edu.uoc.pac4.data.network.UnauthorizedException
+import edu.uoc.pac4.data.oauth.AuthenticationRepository
+import edu.uoc.pac4.data.streams.StreamsRepository
 import edu.uoc.pac4.ui.login.LoginActivity
 import edu.uoc.pac4.ui.profile.ProfileActivity
 import kotlinx.android.synthetic.main.activity_streams.*
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class StreamsActivity : AppCompatActivity() {
 
@@ -72,11 +75,13 @@ class StreamsActivity : AppCompatActivity() {
         // Get Twitch Streams
         lifecycleScope.launch {
             try {
-                twitchApiService.getStreams(cursor)?.let { response ->
-                    // Success :)
+
+                val repository:  StreamsRepository by inject()
+                var response = repository.getStreams(cursor)
+                response.second.let {
                     Log.d("StreamsActivity", "Got Streams: $response")
 
-                    val streams = response.data.orEmpty()
+                    val streams = it.orEmpty()
                     // Update UI with Streams
                     if (cursor != null) {
                         // We are adding more items to the list
@@ -86,19 +91,17 @@ class StreamsActivity : AppCompatActivity() {
                         adapter.submitList(streams)
                     }
                     // Save cursor for next request
-                    nextCursor = response.pagination?.cursor
+                    nextCursor = response?.first
+                }
 
-                } ?: run {
-                    // Error :(
-
-                    // Show Error message to not leave the page empty
-                    if (adapter.currentList.isNullOrEmpty()) {
-                        Toast.makeText(
+                //error??
+                if (adapter.currentList.isNullOrEmpty()) {
+                    Toast.makeText(
                             this@StreamsActivity,
                             getString(R.string.error_streams), Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    ).show()
                 }
+
                 // Hide Loading
                 swipeRefreshLayout.isRefreshing = false
 

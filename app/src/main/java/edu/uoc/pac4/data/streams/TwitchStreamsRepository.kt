@@ -5,11 +5,18 @@ package edu.uoc.pac4.data.streams
  */
 
 class TwitchStreamsRepository(
-    // TODO: Add any datasources you may need
+    private val dataSource: StreamsDataSource
 ) : StreamsRepository {
 
     override suspend fun getStreams(cursor: String?): Pair<String?, List<Stream>> {
-        TODO("Not yet implemented")
+        var streamResponse = dataSource.getStreams(cursor)
+        var resultado = Pair<String?, List<Stream>>(null, emptyList())
+
+        streamResponse?.data?.let {
+            resultado =   Pair<String?, List<Stream>>(streamResponse.pagination?.cursor, it)
+        }
+
+        return resultado
     }
 
 }

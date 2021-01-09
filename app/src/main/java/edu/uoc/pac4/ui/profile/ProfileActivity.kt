@@ -18,15 +18,19 @@ import edu.uoc.pac4.ui.login.LoginActivity
 import edu.uoc.pac4.data.SessionManager
 import edu.uoc.pac4.data.TwitchApiService
 import edu.uoc.pac4.data.network.UnauthorizedException
+import edu.uoc.pac4.data.streams.StreamsRepository
 import edu.uoc.pac4.data.user.User
+import edu.uoc.pac4.data.user.UserRepository
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class ProfileActivity : AppCompatActivity() {
 
     private val TAG = "ProfileActivity"
 
-    private val twitchApiService = TwitchApiService(Network.createHttpClient(this))
+    //private val twitchApiService = TwitchApiService(Network.createHttpClient(this))
+    private val userRepository: UserRepository by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +60,8 @@ class ProfileActivity : AppCompatActivity() {
         progressBar.visibility = VISIBLE
         // Retrieve the Twitch User Profile using the API
         try {
-            twitchApiService.getUser()?.let { user ->
+
+            userRepository.getUser()?.let { user ->
                 // Success :)
                 // Update the UI with the user data
                 setUserInfo(user)
@@ -76,7 +81,7 @@ class ProfileActivity : AppCompatActivity() {
         progressBar.visibility = VISIBLE
         // Update the Twitch User Description using the API
         try {
-            twitchApiService.updateUserDescription(description)?.let { user ->
+            userRepository.updateUser(description)?.let { user ->
                 // Success :)
                 // Update the UI with the user data
                 setUserInfo(user)
