@@ -41,11 +41,11 @@ class StreamViewModel (private val repository: StreamsRepository) : ViewModel()
         loadStreams()
     }
 
-    public fun getCurrentCursor(): String?
+    fun getCurrentCursor(): String?
     {
         return currentCursor
     }
-    public fun getNextCursor(): String?
+    fun getNextCursor(): String?
     {
         return nextCursor
     }
@@ -55,17 +55,17 @@ class StreamViewModel (private val repository: StreamsRepository) : ViewModel()
         return error
     }
 
-    public fun getStreams(): LiveData<List<Stream>>
+    fun getStreams(): LiveData<List<Stream>>
     {
         return streams
     }
 
-    public fun getIsRefreshing(): LiveData<Boolean>
+    fun getIsRefreshing(): LiveData<Boolean>
     {
         return isRefresing
     }
 
-    public fun loadStreams(cursor: String? = null) {
+    fun loadStreams(cursor: String? = null) {
         isRefresing.postValue(true)
 
         Log.d(TAG, "Requesting streams with cursor $cursor")
@@ -81,7 +81,7 @@ class StreamViewModel (private val repository: StreamsRepository) : ViewModel()
 
                     streams.postValue(it.orEmpty())
                     // Save cursor for next request
-                    nextCursor = response?.first
+                    nextCursor = response.first
                 }
 
             } catch (t: UnauthorizedException) {

@@ -8,18 +8,17 @@ import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
-public class StreamsDataSource(private val httpClient: HttpClient) {
+class StreamsDataSource(private val httpClient: HttpClient) {
     private val TAG = "StreamsDataSource"
 
     /// Gets Streams on Twitch
     @Throws(UnauthorizedException::class)
     suspend fun getStreams(cursor: String? = null): StreamsResponse? {
         try {
-            val response = httpClient
+            return httpClient
                     .get<StreamsResponse>(Endpoints.streamsUrl) {
                         cursor?.let { parameter("after", it) }
                     }
-            return response
         } catch (t: Throwable) {
             Log.w(TAG, "Error getting streams", t)
             // Try to handle error

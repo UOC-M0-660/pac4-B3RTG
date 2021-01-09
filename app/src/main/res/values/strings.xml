@@ -22,4 +22,6 @@
     <string name="error_streams">Error getting Streams</string>
     <string name="error_profile">Error getting Profile</string>
     <string name="error_profile_update">Error updating profile</string>
+    <string name="lbl_descripcion_imagen_profile">Current user image</string>
+    <string name="lbl_description_content">Number of viewrs image</string>
 </resources>

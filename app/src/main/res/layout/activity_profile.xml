@@ -14,7 +14,7 @@
         android:padding="@dimen/margin_medium"
         tools:context=".ui.profile.ProfileActivity">
 
-        <ImageView
+        <ImageView android:contentDescription="@string/lbl_descripcion_imagen_profile"
             android:id="@+id/imageView"
             android:layout_width="@dimen/profile_image_size"
             android:layout_height="@dimen/profile_image_size"
@@ -27,7 +27,7 @@
             android:gravity="center"
             android:layout_marginTop="@dimen/margin_medium"
             android:orientation="horizontal">
-            <ImageView
+            <ImageView android:contentDescription="@string/lbl_description_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:tint="@color/colorOnBackground"
