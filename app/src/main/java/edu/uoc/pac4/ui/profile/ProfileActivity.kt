@@ -9,36 +9,30 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import edu.uoc.pac4.R
-import edu.uoc.pac4.data.network.Network
 import edu.uoc.pac4.ui.login.LoginActivity
 import edu.uoc.pac4.data.SessionManager
-import edu.uoc.pac4.data.TwitchApiService
 import edu.uoc.pac4.data.network.UnauthorizedException
-import edu.uoc.pac4.data.streams.StreamsRepository
 import edu.uoc.pac4.data.user.User
-import edu.uoc.pac4.data.user.UserRepository
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class ProfileActivity : AppCompatActivity() {
 
     private val TAG = "ProfileActivity"
 
     //private val twitchApiService = TwitchApiService(Network.createHttpClient(this))
-    private val userRepository: UserRepository by inject()
+    private val viewModel: ProfileViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
-        // Get User Profile
-        lifecycleScope.launch {
-            getUserProfile()
-        }
+
         // Update Description Button Listener
         updateDescriptionButton.setOnClickListener {
             // Hide Keyboard
@@ -46,7 +40,7 @@ class ProfileActivity : AppCompatActivity() {
             imm?.hideSoftInputFromWindow(it.windowToken, 0)
             // Update User Description
             lifecycleScope.launch {
-                updateUserDescription(userDescriptionEditText.text?.toString() ?: "")
+                viewModel.updateUserDescription(userDescriptionEditText.text?.toString() ?: "")
             }
         }
         // Logout Button Listener
@@ -54,46 +48,36 @@ class ProfileActivity : AppCompatActivity() {
             // Logout
             logout()
         }
+
+        setupViewModel()
+
     }
 
-    private suspend fun getUserProfile() {
-        progressBar.visibility = VISIBLE
-        // Retrieve the Twitch User Profile using the API
-        try {
+    private fun setupViewModel()
+    {
+        viewModel.getUser().observe(this, Observer<User> {
+            progressBar.visibility = VISIBLE
 
-            userRepository.getUser()?.let { user ->
-                // Success :)
-                // Update the UI with the user data
-                setUserInfo(user)
-            } ?: run {
-                // Error :(
-                showError(getString(R.string.error_profile))
+            try {
+                it?.let { user ->
+                    // Success :)
+                    // Update the UI with the user data
+                    setUserInfo(user)
+                } ?: run {
+                    // Error :(
+                    showError(getString(R.string.error_profile))
+                }
+            } catch (t: UnauthorizedException) {
+                onUnauthorized()
             }
+
             // Hide Loading
             progressBar.visibility = GONE
-        } catch (t: UnauthorizedException) {
-            onUnauthorized()
-        }
-    }
+        })
 
-
-    private suspend fun updateUserDescription(description: String) {
-        progressBar.visibility = VISIBLE
-        // Update the Twitch User Description using the API
-        try {
-            userRepository.updateUser(description)?.let { user ->
-                // Success :)
-                // Update the UI with the user data
-                setUserInfo(user)
-            } ?: run {
-                // Error :(
-                showError(getString(R.string.error_profile))
-            }
-            // Hide Loading
-            progressBar.visibility = GONE
-        } catch (t: UnauthorizedException) {
-            onUnauthorized()
-        }
+        viewModel.getVisibilityProgressBar().observe(this, Observer<Int> {
+            progressBar.visibility = it
+        })
     }
 
     private fun setUserInfo(user: User) {

@@ -11,7 +11,11 @@ import edu.uoc.pac4.data.streams.TwitchStreamsRepository
 import edu.uoc.pac4.data.user.TwitchUserRepository
 import edu.uoc.pac4.data.user.UserDataSource
 import edu.uoc.pac4.data.user.UserRepository
+import edu.uoc.pac4.ui.LaunchViewModel
+import edu.uoc.pac4.ui.profile.ProfileViewModel
+import edu.uoc.pac4.ui.streams.StreamViewModel
 import org.koin.android.ext.koin.androidContext
+import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 /**
@@ -19,11 +23,11 @@ import org.koin.dsl.module
  */
 
 val dataModule = module {
-
-
     single<AuthenticationRepository> { OAuthAuthenticationRepository(OAuthDataSource(Network.createHttpClient(androidContext())), SessionManager(androidContext())) }
     single<StreamsRepository> { TwitchStreamsRepository(StreamsDataSource(Network.createHttpClient(androidContext()))) }
     single<UserRepository> { TwitchUserRepository(UserDataSource(Network.createHttpClient(androidContext()))) }
 
-
+    viewModel { LaunchViewModel(get()) }
+    viewModel { StreamViewModel(get()) }
+    viewModel { ProfileViewModel(get()) }
 }
